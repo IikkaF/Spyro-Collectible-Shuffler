@@ -9,7 +9,7 @@ This tool creates a new Spyro 1 disc image where collectibles have been moved ar
 Put your spyro1.bin - file (must be the NTSC-U version and named like that) in the input-folder.
 Open config.ini with a text editor to edit the configuration. Run the program through create_iso.bat if on Windows,
 or run src/create_iso.py with Python. The new .bin/.cue - files are created into the output-folder.
-Crashes and softlocks are possible, so remember to save the game regularly. The next three sections discuss the configuration.
+Crashes and softlocks are possible, so remember to save the game regularly. The next sections discuss the configuration.
 
 ## Seeding
 
@@ -35,10 +35,19 @@ The following types should be safe to shuffle:
 - Keys
 
 The following types can be problematic:
+-  Dragons: If you're using skip_dragon_cutscenes = True, dragons should be safe to randomize. If you absolutely
+   want to see the cutscenes and set it to False, the game sometimes crashes on dragon rescues.
 - Spring chests and fan chests: can be hard/impossible to break if moved to a location with no room to stand next to them.
--  Level exit vortexes: same as previous, also can be unusable if there's an obstruction above them. If you get stuck on a ceiling, you may need to pause and exit level.
--  Dragons: rescuing a shuffled dragon rarely crashes the game. Haven't had a consistent crash on any dragon yet, but it might happen.
--  Fireworks chests and key chests: when you collect a certain gem from the gem fountain, the chest will no longer respawn and instead explodes instantly upon Spyro respawning or re-entering the level. The gems can become unobtainable if they fly into the void.
+-  Level exit vortexes: same as previous, also can be unusable if there's an obstruction above them. If you get stuck
+   on a ceiling, you may need to pause and exit level.
+-  Fireworks chests and key chests: when you collect a certain gem from the gem fountain, the chest will no longer
+   respawn and instead explodes instantly upon Spyro respawning or re-entering the level. The gems can become
+   unobtainable if they fly into the void.
+   
+## Miscellaneous
+
+skip_dragon_cutscenes should be set to True to prevent crashes on dragon rescues. I left the option to set this to False
+because I'm unreasonably amused by some cutscenes that can happen with this randomizer.
 
 # Under construction
 

@@ -33,6 +33,9 @@ VORTEX = 9
 DRAGON = 250
 DRAGON_PEDESTAL = 331
 
+TREE_TOPS_GREEN_THIEF = 293
+TREE_TOPS_RED_THIEF = 294
+
 """
 
 moby_type_to_int = {
@@ -61,22 +64,29 @@ def create_iso():
     randomized_types = set()
 
     seed = -1
-    if "Seeding" in config.sections() and "seed" in config.options("Seeding"):
+    if "seeding" in config.sections() and "seed" in config.options("seeding"):
         try:
-            seed = config["Seeding"].getint("seed")
+            seed = config["seeding"].getint("seed")
         except ValueError:
             print("Invalid value for seed in config, using random seed")
 
-    for category in config["Weights"]:
-        weights[category] = config.getfloat("Weights", category)
+    for category in config["weights"]:
+        weights[category] = config.getfloat("weights", category)
 
-    for type in config["Randomized_types"]:
-        if not config.getboolean("Randomized_types", type):
+    for type in config["randomized_types"]:
+        if not config.getboolean("randomized_types", type):
             continue
         if type not in moby_type_to_int:
             continue
         for value in moby_type_to_int[type]:
             randomized_types.add(value)
+
+    skip_dragons = True
+    if "miscellaneous" in config.sections() and "skip_dragon_cutscenes" in config.options("miscellaneous"):
+        try:
+            skip_dragons = config.getboolean("miscellaneous", "skip_dragon_cutscenes")
+        except ValueError:
+            print("Invalid value for skip_dragon_cutscenes in config, using True")
 
     # Extract the contents of the ISO
     input_file_path = os.path.join(root_path, "input", "spyro1.bin")
@@ -91,7 +101,7 @@ def create_iso():
     unpack_wad(base_wad_path, wad_extract_path)
 
     # Modify the data
-    modify_data(seed, weights, randomized_types)
+    modify_data(seed, weights, randomized_types, skip_dragons)
 
     # Repack the WAD.WAD - file
     repack_wad()

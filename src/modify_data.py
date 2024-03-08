@@ -48,7 +48,7 @@ sequences_before_moby_data = {
 }
 
 # For debugging purposes
-debugged_levels = {"3e_twilight_harbor"}
+debugged_levels = {"2b_tree_tops"}
 
 
 def find_start_of_moby_data(level):
@@ -102,7 +102,7 @@ def find_start_of_moby_data(level):
         return i
 
 
-def modify_data(seed, weights, randomized_types):
+def modify_data(seed, weights, randomized_types, skip_dragons):
     """
     This function modifies the data of all the levels.
     :param weights:
@@ -153,6 +153,7 @@ def modify_data(seed, weights, randomized_types):
                 # Get the type of the current moby
                 level_data.seek((i + 15) * READ_SIZE + 2)
                 current_type = int.from_bytes(level_data.read(2), "little")
+
                 if current_type not in randomized_types:
                     i += 22
                     continue
@@ -164,6 +165,16 @@ def modify_data(seed, weights, randomized_types):
                 current_z = int.from_bytes(level_data.read(READ_SIZE), "little")
                 if current_x == 0 or current_y == 0 or current_z == 0:
                     break
+
+                # Don't know what this technically does but it makes dragons collect instantly without cutscene
+                if current_type == 250:
+                    if skip_dragons:
+                        level_data.seek((i + 2) * READ_SIZE)
+                        level_data.write((0).to_bytes(READ_SIZE, "little"))
+                    # Don't randomize the dragon in Gnorc Gnexus
+                    if level == "3c_gnorc_gnexus":
+                        i += 22
+                        continue
 
                 # Pick the category from which the location is picked
                 selected_category = random.choices(list(level_weights.keys()), list(level_weights.values()), k=1)[0]
@@ -177,9 +188,9 @@ def modify_data(seed, weights, randomized_types):
                 level_data.write(level_locations.read(READ_SIZE))
                 level_data.write(level_locations.read(READ_SIZE))
 
-                # Don't know what exactly this does but it makes stuff render properly
+                # Again, don't know what exactly this does but it makes stuff render properly
                 level_data.seek((i + 20) * READ_SIZE + 2)
-                level_data.write((65535).to_bytes(READ_SIZE - 2, "little"))
+                level_data.write((255).to_bytes(1, "little"))
 
                 # Remove the just used location from the available ones
                 # and recalculate weights
@@ -196,7 +207,7 @@ def modify_data(seed, weights, randomized_types):
 def debug():
     """
     For debugging purposes
-    Prints the data values for all of the levels in the debugged_levels - set
+    Prints data values for levels in the debugged_levels - set
     """
     for level in debugged_levels:
         print(level)
@@ -205,10 +216,30 @@ def debug():
         i = 0
 
         with open(level_data_dir, "rb") as level_data:
+            """
             while ((i + 1) * READ_SIZE < level_data_size):
                 level_data.seek(i * READ_SIZE)
                 current = int.from_bytes(level_data.read(READ_SIZE), "little")
                 print(current, i)
                 i += 1
+            """
+
+            i = find_start_of_moby_data(level)
+            while (i + 1) * READ_SIZE < level_data_size:
+                # Get the type of the current moby
+                level_data.seek((i + 15) * READ_SIZE + 2)
+                current_type = int.from_bytes(level_data.read(2), "little")
+                if current_type not in [293, 294, 85]:
+                    i += 22
+                    continue
+
+                print(f"\n{i}")
+                print(current_type)
+                for j in range(0, 22):
+                    level_data.seek((i + j) * READ_SIZE)
+                    current = int.from_bytes(level_data.read(READ_SIZE), "little")
+                    print(j, current)
+
+                i += 22
 
 # debug()
