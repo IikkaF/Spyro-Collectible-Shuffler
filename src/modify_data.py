@@ -121,6 +121,7 @@ def modify_data(seed, weights, randomized_types, skip_dragons):
     with open(randomizer_categories_dir) as categories_file:
         for category in categories_file.readlines():
             categories.append(category.strip())
+    nof_categories = len(categories)
 
     for level in randomized_levels:
         level_data_dir = os.path.join(build_dir, "wad", level, f"{level}_sub4.dat")
@@ -144,7 +145,7 @@ def modify_data(seed, weights, randomized_types, skip_dragons):
             for category in categories:
                 category = category.lower()
                 nof_locations = int.from_bytes(level_locations.read(READ_SIZE), "little")
-                location_indices[category] = [latest_idx + i + 1 for i in range(nof_locations)]
+                location_indices[category] = [latest_idx + i for i in range(nof_locations)]
                 latest_idx = latest_idx + nof_locations
                 level_weights[category] = level_weights[category] * nof_locations
 
@@ -180,7 +181,20 @@ def modify_data(seed, weights, randomized_types, skip_dragons):
                 selected_category = random.choices(list(level_weights.keys()), list(level_weights.values()), k=1)[0]
                 # Pick a location from that category
                 selected_location = random.choice(location_indices[selected_category])
-                level_locations.seek(selected_location * READ_SIZE * 3)
+                temp = selected_location + 0
+                # For vortexes try rerolling the location if it's not fit for vortexes (last bit of z-coordinate is 0)
+                if current_type == 9:
+                    max_tries = 20
+                    j = 0
+                    while j < max_tries:
+                        level_locations.seek((nof_categories + selected_location * 3 + 2) * READ_SIZE)
+                        selected_z = level_locations.read(READ_SIZE)
+                        if selected_z[0] & 1 == 1:
+                            break
+                        selected_category = random.choices(list(level_weights.keys()), list(level_weights.values()), k=1)[0]
+                        selected_location = random.choice(location_indices[selected_category])
+                        j += 1
+                level_locations.seek((nof_categories + selected_location * 3) * READ_SIZE)
 
                 # Write the new coordinates
                 level_data.seek((i + 5) * READ_SIZE)
@@ -241,5 +255,4 @@ def debug():
                     print(j, current)
 
                 i += 22
-
 # debug()

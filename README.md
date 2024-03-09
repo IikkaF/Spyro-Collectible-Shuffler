@@ -35,11 +35,12 @@ The following types should be safe to shuffle:
 - Keys
 
 The following types can be problematic:
--  Dragons: If you're using skip_dragon_cutscenes = True, dragons should be safe to randomize. If you absolutely
+-  Dragons: If you're using skip_dragon_cutscenes = True, dragons should be safe to randomize. They can sometimes despawn
+   when flamed, but they will respawn upon death or level re-entry. If you absolutely
    want to see the cutscenes and set it to False, the game sometimes crashes on dragon rescues.
 - Spring chests and fan chests: can be hard/impossible to break if moved to a location with no room to stand next to them.
--  Level exit vortexes: same as previous, also can be unusable if there's an obstruction above them. If you get stuck
-   on a ceiling, you may need to pause and exit level.
+-  Level exit vortexes: similarly to previous, can be hard to reach if moved to a location with no room to stand next to.
+   They should always spawn somewhere with enough space above to exit through.
 -  Fireworks chests and key chests: when you collect a certain gem from the gem fountain, the chest will no longer
    respawn and instead explodes instantly upon Spyro respawning or re-entering the level. The gems can become
    unobtainable if they fly into the void.
